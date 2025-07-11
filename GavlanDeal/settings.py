@@ -32,6 +32,8 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'GavlanDealApp.apps.GavlanDealAppConfig',
+    'integration_utils.bitrix24',
+    'integration_utils.its_utils.app_gitpull',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,10 +46,10 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    #'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'GavlanDeal.urls'
@@ -70,6 +72,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'GavlanDeal.wsgi.application'
 
+from integration_utils.iu_logger.classes.mute_logger import MuteLogger
+ilogger = MuteLogger()
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
