@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Gavlan Deal</title>
+</head>
+<body>
+    {% include 'GavlanDealApp/header.html' %}
+    <div class="main-container">
+        <table id="active-deals">
+            <tr>
+                {% for field in fields %}
+                <th>{{ field }}</th>
+                {% endfor %}
+            </tr>
+            {% for deal in deals %}
+            <tr>{% for value in deal %} <td>{{value}}</td>{% endfor %}</tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+<script src="//api.bitrix24.com/api/v1/"></script>
+</html>

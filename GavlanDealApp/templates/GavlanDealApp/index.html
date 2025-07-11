@@ -7,13 +7,9 @@
     <title>Gavlan Deal</title>
 </head>
 <body>
-    <div class="header">
-        <h1 class="greeting">Приветствую, {{ user_name }}!</h1>
-        <a class="menu-button" href="{% url last_deals %}"></a>
-        <a class="menu-button"></a>
-    </div>
+    {% include 'GavlanDealApp/header.html' %}
     <div class="main-container">
-
+        <h1 class="greeting">Приветствую, {{ user_name }}!</h1>
     </div>
 </body>
 <script src="//api.bitrix24.com/api/v1/"></script>
