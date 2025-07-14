@@ -9,18 +9,39 @@
 <body>
     {% include 'GavlanDealApp/header.html' %}
     <div class="form-container">
-        <form id="add_deal_form">
-            <label>Наименование </label><input id="TITLE" required>
-            <label>Валюта </label><select id="CURRENCY_ID" required>
-                <option value="RUB">Рубль</option>
-                <option value="USD">Доллар США</option>
-                <option value="EUR">Евро</option>
-            </select>
-            <label>Сумма </label><input id="OPPORTUNITY" type="number" required>
-            <label>Налог </label><input id="TAX_VALUE" type="number" required>
-            <label>Начало</label><input id="BEGINDATE" type="datetime-local" required>
-            <label>Конец</label><input id="CLOSEDATE" type="datetime-local" required>
-            <label>Скидка(%) </label><input id="UF_CRM_1752242366887" type="number" required>
+        <form id="add_deal_form" action="{% url 'add_deal' %}" method="POST">
+            <div class="form-field">
+                <label>Наименование</label>
+                <input name="TITLE" required>
+            </div>
+            <div class="form-field">
+                <label>Валюта</label>
+                <select name="CURRENCY_ID" required>
+                    <option value="RUB">Рубль</option>
+                    <option value="USD">Доллар США</option>
+                    <option value="EUR">Евро</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label>Сумма</label>
+                <input name="OPPORTUNITY" type="number" required>
+            </div>
+            <div class="form-field">
+                <label>Налог</label>
+                <input name="TAX_VALUE" type="number" required>
+            </div>
+            <div class="form-field">
+                <label>Начало</label>
+                <input name="BEGINDATE" type="datetime-local" required>
+            </div>
+            <div class="form-field">
+                <label>Конец</label>
+                <input name="CLOSEDATE" type="datetime-local" required>
+            </div>
+            <div class="form-field">
+                <label>Скидка(%)</label>
+                <input name="UF_CRM_1752242366887" type="number" required>
+            </div>
             <input type="submit" value="Submit">
         </form>
     </div>
