@@ -5,6 +5,8 @@
 <head>
     <meta charset="UTF-8" />
     <title>Gavlan Deal</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'GavlanDealApp/style.css' %}" />
 </head>
 <body>
     {% include 'GavlanDealApp/header.html' %}
@@ -42,7 +44,7 @@
                 <label>Скидка(%)</label>
                 <input name="UF_CRM_1752242366887" type="number" required>
             </div>
-            <input type="submit" value="Submit">
+            <input type="submit" value="ДОБАВИТЬ" id="add-deal-button">
         </form>
     </div>
 </body>

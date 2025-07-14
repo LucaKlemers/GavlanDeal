@@ -5,18 +5,20 @@
 <head>
     <meta charset="UTF-8" />
     <title>Gavlan Deal</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'GavlanDealApp/style.css' %}" />
 </head>
 <body>
     {% include 'GavlanDealApp/header.html' %}
     <div class="main-container">
-        <table id="active-deals">
+        <table id="active-deals" style="width:96%">
             <tr>
                 {% for field in fields %}
-                <th>{{ field }}</th>
+                <th style="width:12%">{{ field }}</th>
                 {% endfor %}
             </tr>
             {% for deal in deals %}
-            <tr>{% for value in deal %} <td>{{value}}</td>{% endfor %}</tr>
+            <tr style="height:20px">{% for value in deal %} <td>{{value}}</td>{% endfor %}</tr>
             {% endfor %}
         </table>
     </div>
