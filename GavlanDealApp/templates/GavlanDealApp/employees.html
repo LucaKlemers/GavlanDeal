@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Gavlan Deal</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'GavlanDealApp/style.css' %}" />
+</head>
+<body>
+    {% include 'GavlanDealApp/header.html' %}
+    <div class="main-container">
+        <table id="employees" style="width:80%">
+            <tr>
+                <th style="width:30%">Сотрудник</th>
+                <th style="width:60%">Руководители</th>
+                <th style="width:10%">Звонки</th>
+            </tr>
+            {% for employee in employees %}
+            <tr style="height:30px">{% for value in employee %} <td>{{value}}</td>{% endfor %}</tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+
+</html>

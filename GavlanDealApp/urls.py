@@ -8,4 +8,5 @@ urlpatterns = [
     path("generate_qr", views.generate_qr, name="generate_qr"),
     path("product", views.product, name="product"),
     path("product_list", views.product_list, name="product_list"),
+    path("employees", views.employees, name="employees"),
 ]

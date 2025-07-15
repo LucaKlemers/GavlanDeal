@@ -119,3 +119,12 @@ def product_list(request):
         products.append(values)
     context = {"fields": fields, "products": products,}
     return render(request, 'GavlanDealApp/product_list.html', context)
+
+@main_auth(on_cookies=True)
+def employees(request):
+    token = request.bitrix_user_token
+    users = token.call_api_method("im.department.colleagues.list")['result']
+    print(users)
+    employees = []
+    context = {"employees": employees}
+    return render(request, 'GavlanDealApp/employees.html', context)
