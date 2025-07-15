@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Gavlan Deal</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'GavlanDealApp/style.css' %}" />
+</head>
+<body>
+    <div id="product-info">
+        <h2 id="product-name">{{name}}</h2>
+        <div id="product-description">{{description|safe}}</div>
+        <img src="{% static image %}" />
+    </div>
+</body>
+</html>

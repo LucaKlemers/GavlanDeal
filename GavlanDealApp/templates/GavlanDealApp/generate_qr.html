@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Gavlan Deal</title>
+    {% load static %}
+    {% load qr_code %}
+    <link rel="stylesheet" type="text/css" href="{% static 'GavlanDealApp/style.css' %}" />
+</head>
+
+<body>
+    {% include 'GavlanDealApp/header.html' %}
+    <div id="qr-form-container">
+        <form id="qr-form" action="{% url 'generate_qr' %}" method="POST">
+            <div class="form-field">
+                <label>ID товара</label>
+                <input type="number" name="id" required>
+            </div>
+            <input type="submit" value="СГЕНЕРИРОВАТЬ" id="make-qr-button">
+        </form>
+    </div>
+    <div id="qr-container">
+        <p id="qr-link">{{ qr_link }}</p>
+        <img id="qr-code" src="{{qr_code}}" />
+    </div>
+</body>
+</html>

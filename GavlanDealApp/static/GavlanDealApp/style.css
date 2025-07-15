@@ -11,8 +11,8 @@
 }
 * { font-family: Calibri, Candara, Segoe}
 a:hover {color: gray;}
-a {color:white;}
-.menu_button{color: white; font-size: larger;}
+a {color:black;}
+.menu-button {color: white; font-size: larger;}
 .main-container{
     display: flex;
     align-items: center;
@@ -49,4 +49,41 @@ table, th, td {
     justify-content: space-between;
     margin-top: 3%;
     margin-bottom: 3%;
+}
+
+#qr-form-container{
+    width:30%;
+    margin-left:35%;
+    margin-right:35%;
+    display:flex;
+    flex-direction:column;
+    height: 25px;
+}
+#make-qr-button{
+    width:100%;
+    height:40px;
+    background-color:black;
+    border:None;
+    color:white;
+    font-size:25px;
+}
+#qr-container {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    margin-top: 5%;
+}
+#product-info {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40%;
+    margin-top: 5%;
 }

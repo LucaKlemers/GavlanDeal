@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'GavlanDealApp.apps.GavlanDealAppConfig',
     'integration_utils.bitrix24',
     'integration_utils.its_utils.app_gitpull',
+    'qr_code',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

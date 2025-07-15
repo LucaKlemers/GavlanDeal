@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Gavlan Deal</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'GavlanDealApp/style.css' %}" />
+</head>
+<body>
+    {% include 'GavlanDealApp/header.html' %}
+    <div class="main-container">
+        <table id="products" style="width:40%">
+            <tr>
+                {% for field in fields %}
+                <th style="width:20%">{{ field }}</th>
+                {% endfor %}
+            </tr>
+            {% for product in products %}
+            <tr style="height:20px">{% for value in product %} <td>{{value}}</td>{% endfor %}</tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
