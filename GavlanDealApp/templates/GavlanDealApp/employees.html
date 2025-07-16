@@ -7,7 +7,23 @@
     <title>Gavlan Deal</title>
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'GavlanDealApp/style.css' %}" />
+
+    <script src="https://api.bitrix24.com/api/v1/"></script>
+    <script>
+        BX24.init(function() {
+        document.querySelectorAll('.user-card-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                    const userID = this.getAttribute('id');
+                    BX24.openPath(`/company/personal/user/${userID}/`, (result) => {
+                        console.log(`Opened ${userID}`, result);
+                });
+            });
+        });
+        });
+    </script>
 </head>
+
 <body>
     {% include 'GavlanDealApp/header.html' %}
     <div class="main-container">
@@ -18,10 +34,16 @@
                 <th style="width:10%">Звонки</th>
             </tr>
             {% for employee in employees %}
-            <tr style="height:30px">{% for value in employee %} <td>{{value}}</td>{% endfor %}</tr>
+            <tr style="height:30px">
+                <td><a id="{{ employee.3 }}" class="user-card-link" href="#">{{employee.0}}</a></td>
+                <td>{% for head in employee.1 %}{{ head }}; {% endfor %}</td>
+                <td>{{employee.2}}</td>
+            </tr>
             {% endfor %}
         </table>
     </div>
 </body>
 
+
 </html>
+
