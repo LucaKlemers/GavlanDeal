@@ -181,5 +181,26 @@ def employees(request):
     context = {"employees": employee_list, }
     return render(request, 'GavlanDealApp/employees.html', context)
 
+@main_auth(on_cookies=True)
+def on_map (request):
+    token = request.bitrix_user_token
+    companies = []
+    addresses = token.call_api_method("crm.address.list")['result']
+    for address in addresses:
+        if address['ENTITY_TYPE_ID'] == '8':
+            company = token.call_api_method("crm.company.get", params={'id': address['ENTITY_ID']})['result']['TITLE']
+            full_address = f"{address['COUNTRY']}, {address['CITY']}, {address['ADDRESS_1']}"
+            companies.append([full_address, company])
+    context = {'companies': companies}
+    return render(request, 'GavlanDealApp/on_map.html', context)
 
+@main_auth(on_cookies=True)
+def upload_contacts(request):
+    context = {}
+    return render(request, 'GavlanDealApp/upload_contacts.html', context)
+
+@main_auth(on_cookies=True)
+def download_contacts(request):
+    context = {}
+    return render(request, 'GavlanDealApp/download_contacts.html', context)
 
