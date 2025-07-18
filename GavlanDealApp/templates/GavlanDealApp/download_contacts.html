@@ -10,6 +10,18 @@
 </head>
 <body>
     {% include 'GavlanDealApp/header.html' %}
+    <div id="download-contacts-form-container">
+        <form id="download-contacts-form" action="{% url 'download_contacts' %}" method="POST">
+            <div class="form-field">
+                <label>Тип файла</label>
+                <select name="file_type" id="contacts-file-type" required>
+                    <option value="csv">.csv</option>
+                    <option value="xlsx">.xlsx</option>
+                </select>
+            </div>
+            <input type="submit" value="СКАЧАТЬ" id="download-contacts">
+        </form>
+    </div>
 </body>
 
 </html>

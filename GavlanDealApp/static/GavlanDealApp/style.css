@@ -12,7 +12,7 @@
 /** { font-family: Calibri, Candara, Segoe}*/
 * {font-family: ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji}
 a:hover {color: gray;}
-a {color:black;}
+a {color:black; text-decoration: None;}
 .menu-button {color: white; font-size: larger;}
 .main-container{
     display: flex;
@@ -37,14 +37,7 @@ table, th, td {
     flex-direction:column;
     height: 200px;
 }
-#add-deal-button{
-    width:100%;
-    height:40px;
-    background-color:black;
-    border:None;
-    color:white;
-    font-size:25px;
-}
+
 .form-field{
     display:flex;
     justify-content: space-between;
@@ -60,14 +53,7 @@ table, th, td {
     flex-direction:column;
     height: 25px;
 }
-#make-qr-button{
-    width:100%;
-    height:40px;
-    background-color:black;
-    border:None;
-    color:white;
-    font-size:25px;
-}
+
 #qr-container {
     position: relative;
     left: 50%;
@@ -87,4 +73,27 @@ table, th, td {
     align-items: center;
     width: 40%;
     margin-top: 5%;
+}
+#upload-contacts-form, #download-contacts-form{
+    width:30%;
+    margin-left:35%;
+    margin-right:35%;
+    margin-top:150px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-around;
+    height: 200px;
+}
+form input[type="submit"]{
+    width:100%;
+    height:40px;
+    background-color:black;
+    border:None;
+    color:white;
+    font-size:25px;
+    border-radius: 5px;
+}
+form input[type="submit"]:hover {
+  cursor: pointer;
+  background-color: gray;
 }

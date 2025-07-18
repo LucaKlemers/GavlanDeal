@@ -1,7 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 from integration_utils.bitrix24.bitrix_user_auth.main_auth import main_auth
 from integration_utils.bitrix24.functions.call_list_method import call_list_method
-from integration_utils.bitrix24.functions.api_call import api_call
+from integration_utils.bitrix24.functions.batch_api_call import _batch_api_call
 from django.conf import settings
 from operator import itemgetter
 from django.core.signing import Signer
@@ -16,6 +16,9 @@ from functools import lru_cache
 from random import randint
 from datetime import datetime, timedelta, timezone
 from time import sleep
+from os.path import splitext
+import csv
+import openpyxl
 @main_auth(on_start=True, set_cookie=True)
 def index(request):
     app_settings = settings.APP_SETTINGS
@@ -196,11 +199,65 @@ def on_map (request):
 
 @main_auth(on_cookies=True)
 def upload_contacts(request):
-    context = {}
-    return render(request, 'GavlanDealApp/upload_contacts.html', context)
+    token = request.bitrix_user_token
+    def get_data(file):
+        extension = splitext(file.name)[1].lower()
+        if extension == ".csv":
+            csv_file = io.TextIOWrapper(file.file, encoding='utf-8')
+            result = csv.reader(csv_file)
+            return result
+        elif extension == ".xlsx":
+            wb = openpyxl.load_workbook(filename=io.BytesIO(file.read()), read_only=True)
+            result = [list(row) for row in wb.active.iter_rows(values_only=True)]
+            return result
+
+    if request.method == "POST":
+        file = request.FILES.get('file')
+        contact_list = get_data(file)
+        companies = token.call_api_method("crm.company.list", params={"select":["ID", "TITLE"]})['result']
+        # names = ["NAME", "LAST_NAME", "PHONE", "EMAIL", "COMPANY_ID"]
+        contacts = []
+        for contact in contact_list:
+            company_id = next((company for company in companies if company["TITLE"] == contact[4]), None)['ID']
+            contact_dict = {"NAME": contact[0], "LAST_NAME": contact[1], "PHONE": [{"VALUE": contact[2]}], "EMAIL": [{"VALUE": contact[3]}], "COMPANY_ID": company_id}
+            contacts.append(("crm.contact.add", {'fields': contact_dict}))
+        _batch_api_call(contacts, token, token.call_api_method)
+        return render(request, 'GavlanDealApp/upload_contacts.html', {"success": True})
+    return render(request, 'GavlanDealApp/upload_contacts.html', )
 
 @main_auth(on_cookies=True)
 def download_contacts(request):
-    context = {}
-    return render(request, 'GavlanDealApp/download_contacts.html', context)
+    def get_file(data, type):
+        if type == "csv":
+            buffer = io.StringIO()
+            writer = csv.writer(buffer)
+            writer.writerows(data)
+            file = buffer.getvalue()
+            response = HttpResponse(file, content_type='text/plain')
+            response['Content-Disposition'] = 'attachment; filename="contacts.csv"'
+            return response
+        elif type == "xlsx":
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            for row in data:
+                ws.append(row)
+            buffer = io.BytesIO()
+            wb.save(buffer)
+            file = buffer.getvalue()
+            response = HttpResponse(file, content_type='text/plain')
+            response['Content-Disposition'] = 'attachment; filename="contacts.xlsx"'
+            return response
+    token = request.bitrix_user_token
+    if request.method == "POST":
+        file_type = request.POST.get("file_type")
+        companies = token.call_api_method("crm.company.list", params={"select": ["ID", "TITLE"]})['result']
+        contact_list = token.call_api_method("crm.contact.list", params={"select": ["NAME", "LAST_NAME", "PHONE", "EMAIL", "COMPANY_ID"]})['result']
+        contacts = []
+        for contact in contact_list:
+            company_title = next((company for company in companies if company["ID"] == contact['COMPANY_ID']), None)['TITLE']
+            contact_row = [contact["NAME"], contact["LAST_NAME"], contact["PHONE"][0]["VALUE"], contact["EMAIL"][0]["VALUE"], company_title]
+            contacts.append(contact_row)
+        file = get_file(contacts, file_type)
+        return file
+    return render(request, 'GavlanDealApp/download_contacts.html')
 
