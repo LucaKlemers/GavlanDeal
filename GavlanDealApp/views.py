@@ -13,12 +13,11 @@ from PIL import Image
 import io
 import base64
 from functools import lru_cache
-from random import randint
 from datetime import datetime, timedelta, timezone
-from time import sleep
 from os.path import splitext
 import csv
 import openpyxl
+
 @main_auth(on_start=True, set_cookie=True)
 def index(request):
     app_settings = settings.APP_SETTINGS
@@ -114,7 +113,7 @@ def product_list(request):
     token = request.bitrix_user_token
     fields = ["ID", "Наименование"]
     product_types = ["ID", "TITLE"]
-    full_products = sorted(token.call_api_method("crm.product.list")['result'], key=itemgetter('ID'), reverse=True)
+    full_products = sorted(token.call_list_method("crm.product.list"), key=itemgetter('ID'), reverse=True)
     products = []
     for product in full_products:
         values = []
@@ -137,27 +136,26 @@ def product_list(request):
 #             call_end = token.call_api_method("telephony.externalcall.finish", params={"CALL_ID": call_start["CALL_ID"], "USER_ID": employee_id, "DURATION": randint(1, 200)})
 #     return call_end
 
+
+#@lru_cache(maxsize=None)
+def get_heads (department, heads, token, departments):
+    department_id = department['ID']
+    department_heads = token.call_list_method("im.department.managers.get", fields={'ID': [int(department_id)], "USER_DATA": "Y"})
+    if department_heads:
+        heads += department_heads[department_id]
+    if 'PARENT' in department:
+        return get_heads([d for d in departments if d['ID'] == department['PARENT']][0], heads, token, departments)
+    else:
+        return heads
 @main_auth(on_cookies=True)
 def employees(request):
     token = request.bitrix_user_token
     departments = token.call_api_method("department.get")['result']
 
     employees = []
-    #@lru_cache(maxsize=None)
-    def get_heads (department, heads):
-
-        department_id = department['ID']
-        department_heads = token.call_api_method("im.department.managers.get", params={'ID': [int(department_id)], "USER_DATA": "Y"})['result']
-        if department_heads:
-            heads += department_heads[department_id]
-        if 'PARENT' in department:
-            return get_heads([d for d in departments if d['ID'] == department['PARENT']][0], heads)
-        else:
-            return heads
-
     for department in departments:
-        all_heads = get_heads(department, [])
-        employee_list = token.call_api_method("im.department.employees.get",  params={"ID": [int(department['ID'])], "USER_DATA": "Y"})['result']
+        all_heads = get_heads(department, [], token, departments)
+        employee_list = token.call_list_method("im.department.employees.get",  fields={"ID": [int(department['ID'])], "USER_DATA": "Y"})
         if employee_list:
             for employee in employee_list[department['ID']]:
                 employee_id = employee['id']
@@ -172,11 +170,10 @@ def employees(request):
                 elif employee['active']:
                     now = datetime.now(timezone.utc)
                     earliest = (now - timedelta(hours=24)).isoformat()
-                    calls = token.call_api_method("voximplant.statistic.get", params={"FILTER": {">CALL_DURATION": 60, ">CALL_START_DATE": earliest}})['result']
+                    calls = token.call_list_method("voximplant.statistic.get", fields={"FILTER": {">CALL_DURATION": 60, ">CALL_START_DATE": earliest}})
                     employees.append({"name": employee_name, "heads": employee_heads, "id": employee_id, "calls": len(calls),})
 
     # add_calls(employees, token)
-
     employee_list = []
     for employee in employees:
         employee_list.append([employee['name'], employee['heads'], employee['calls'], employee["id"]])
@@ -197,24 +194,24 @@ def on_map (request):
     context = {'companies': companies}
     return render(request, 'GavlanDealApp/on_map.html', context)
 
+
+def get_data(file):
+    extension = splitext(file.name)[1].lower()
+    if extension == ".csv":
+        csv_file = io.TextIOWrapper(file.file, encoding='utf-8')
+        result = csv.reader(csv_file)
+        return result
+    elif extension == ".xlsx":
+        wb = openpyxl.load_workbook(filename=io.BytesIO(file.read()), read_only=True)
+        result = [list(row) for row in wb.active.iter_rows(values_only=True)]
+        return result
 @main_auth(on_cookies=True)
 def upload_contacts(request):
     token = request.bitrix_user_token
-    def get_data(file):
-        extension = splitext(file.name)[1].lower()
-        if extension == ".csv":
-            csv_file = io.TextIOWrapper(file.file, encoding='utf-8')
-            result = csv.reader(csv_file)
-            return result
-        elif extension == ".xlsx":
-            wb = openpyxl.load_workbook(filename=io.BytesIO(file.read()), read_only=True)
-            result = [list(row) for row in wb.active.iter_rows(values_only=True)]
-            return result
-
     if request.method == "POST":
         file = request.FILES.get('file')
         contact_list = get_data(file)
-        companies = token.call_api_method("crm.company.list", params={"select":["ID", "TITLE"]})['result']
+        companies = token.call_list_method("crm.company.list", fields={"select":["ID", "TITLE"]})
         # names = ["NAME", "LAST_NAME", "PHONE", "EMAIL", "COMPANY_ID"]
         contacts = []
         for contact in contact_list:
@@ -225,33 +222,34 @@ def upload_contacts(request):
         return render(request, 'GavlanDealApp/upload_contacts.html', {"success": True})
     return render(request, 'GavlanDealApp/upload_contacts.html', )
 
+
+def get_file(data, type):
+    if type == "csv":
+        buffer = io.StringIO()
+        writer = csv.writer(buffer)
+        writer.writerows(data)
+        file = buffer.getvalue()
+        response = HttpResponse(file, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename="contacts.csv"'
+        return response
+    elif type == "xlsx":
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        for row in data:
+            ws.append(row)
+        buffer = io.BytesIO()
+        wb.save(buffer)
+        file = buffer.getvalue()
+        response = HttpResponse(file, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename="contacts.xlsx"'
+        return response
 @main_auth(on_cookies=True)
 def download_contacts(request):
-    def get_file(data, type):
-        if type == "csv":
-            buffer = io.StringIO()
-            writer = csv.writer(buffer)
-            writer.writerows(data)
-            file = buffer.getvalue()
-            response = HttpResponse(file, content_type='text/plain')
-            response['Content-Disposition'] = 'attachment; filename="contacts.csv"'
-            return response
-        elif type == "xlsx":
-            wb = openpyxl.Workbook()
-            ws = wb.active
-            for row in data:
-                ws.append(row)
-            buffer = io.BytesIO()
-            wb.save(buffer)
-            file = buffer.getvalue()
-            response = HttpResponse(file, content_type='text/plain')
-            response['Content-Disposition'] = 'attachment; filename="contacts.xlsx"'
-            return response
     token = request.bitrix_user_token
     if request.method == "POST":
         file_type = request.POST.get("file_type")
-        companies = token.call_api_method("crm.company.list", params={"select": ["ID", "TITLE"]})['result']
-        contact_list = token.call_api_method("crm.contact.list", params={"select": ["NAME", "LAST_NAME", "PHONE", "EMAIL", "COMPANY_ID"]})['result']
+        companies = token.call_list_method("crm.company.list", fields={"select": ["ID", "TITLE"]})
+        contact_list = token.call_list_method("crm.contact.list", fields={"select": ["NAME", "LAST_NAME", "PHONE", "EMAIL", "COMPANY_ID"]})
         contacts = []
         for contact in contact_list:
             company_title = next((company for company in companies if company["ID"] == contact['COMPANY_ID']), None)['TITLE']
